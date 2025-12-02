@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game - Admin Panel</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+      color: #fff;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 2.5em;
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    }
+
+    .panel h2 {
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .control-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      margin-top: 5px;
+    }
+
+    input {
+      background: rgba(255, 255, 255, 0.9);
+      color: #333;
+    }
+
+    button {
+      background: #4CAF50;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s;
+    }
+
+    button:hover {
+      background: #45a049;
+      transform: translateY(-2px);
+    }
+
+    button:disabled {
+      background: #666;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    button.danger {
+      background: #f44336;
+    }
+
+    button.danger:hover {
+      background: #da190b;
+    }
+
+    button.warning {
+      background: #ff9800;
+    }
+
+    button.warning:hover {
+      background: #e68900;
+    }
+
+    .status {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .status-item {
+      display: flex;
+      justify-content: space-between;
+      margin: 8px 0;
+    }
+
+    .status-value {
+      font-weight: bold;
+      color: #4CAF50;
+    }
+
+    .player-list, .team-list {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .player-item, .team-item {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .player-item.cpu, .team-item.cpu {
+      background: rgba(100, 149, 237, 0.2);
+    }
+
+    .player-info {
+      flex: 1;
+    }
+
+    .player-name {
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .player-details {
+      font-size: 14px;
+      opacity: 0.8;
+      margin-top: 4px;
+    }
+
+    .score {
+      font-size: 24px;
+      font-weight: bold;
+      color: #4CAF50;
+    }
+
+    .feature-flags {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .feature-flag {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 10px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .feature-flag.enabled {
+      background: rgba(76, 175, 80, 0.2);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+      margin-left: 8px;
+    }
+
+    .badge.cpu {
+      background: cornflowerblue;
+    }
+
+    .badge.team {
+      background: #ff9800;
+    }
+
+    .badge.enabled {
+      background: #4CAF50;
+    }
+
+    .badge.disabled {
+      background: #666;
+    }
+
+    .leaderboard {
+      margin-top: 20px;
+    }
+
+    .leaderboard-item {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .rank {
+      font-size: 24px;
+      font-weight: bold;
+      min-width: 40px;
+    }
+
+    .full-width {
+      grid-column: 1 / -1;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .action-buttons button {
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Admin Panel</h1>
+
+    <div class="dashboard">
+      <!-- Game Controls -->
+      <div class="panel">
+        <h2>Game Controls</h2>
+        <div class="status">
+          <div class="status-item">
+            <span>Game State:</span>
+            <span class="status-value" id="gameStateDisplay">Lobby</span>
+          </div>
+          <div class="status-item">
+            <span>Current Round:</span>
+            <span class="status-value" id="currentRoundDisplay">0 / 10</span>
+          </div>
+          <div class="status-item">
+            <span>Players:</span>
+            <span class="status-value" id="playerCountDisplay">0</span>
+          </div>
+          <div class="status-item">
+            <span>Teams:</span>
+            <span class="status-value" id="teamCountDisplay">0</span>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label for="timerInput">Timer Length (seconds):</label>
+          <input type="number" id="timerInput" value="30" min="5" max="120" />
+          <button onclick="updateTimer()">Update Timer</button>
+        </div>
+
+        <div class="action-buttons">
+          <button id="startGameBtn" onclick="startGame()">Start Game</button>
+          <button id="startRoundBtn" onclick="startRound()" disabled>Start Round</button>
+        </div>
+
+        <div class="action-buttons" style="margin-top: 10px;">
+          <button class="danger" onclick="resetGame()">Reset Game</button>
+        </div>
+      </div>
+
+      <!-- Feature Flags -->
+      <div class="panel">
+        <h2>Feature Flags</h2>
+        <div class="feature-flags" id="featureFlags">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <!-- Players List -->
+      <div class="panel">
+        <h2>Players</h2>
+        <div class="player-list" id="playerList">
+          <p style="opacity: 0.6;">No players connected</p>
+        </div>
+      </div>
+
+      <!-- Teams List -->
+      <div class="panel">
+        <h2>Teams</h2>
+        <div class="team-list" id="teamList">
+          <p style="opacity: 0.6;">No teams created</p>
+        </div>
+      </div>
+
+      <!-- Leaderboard -->
+      <div class="panel full-width">
+        <h2>Current Leaderboard</h2>
+        <div class="leaderboard" id="leaderboard">
+          <p style="opacity: 0.6;">Game not started</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    let config = null;
+    let gameState = null;
+
+    // Connect as admin
+    socket.emit('admin:join');
+
+    socket.on('admin:initialized', (data) => {
+      config = data.config;
+      displayFeatureFlags();
+      document.getElementById('timerInput').value = config.game.defaultTimerSeconds;
+    });
+
+    socket.on('admin:state', (state) => {
+      gameState = state;
+      updateDashboard();
+    });
+
+    socket.on('game:state', (state) => {
+      gameState = state;
+      updateDashboard();
+    });
+
+    socket.on('admin:timerUpdated', (data) => {
+      console.log('Timer updated to:', data.seconds);
+    });
+
+    socket.on('round:ended', (data) => {
+      // Leaderboard will be updated via game:state
+    });
+
+    function displayFeatureFlags() {
+      const container = document.getElementById('featureFlags');
+      container.innerHTML = '';
+
+      Object.entries(config.features).forEach(([feature, enabled]) => {
+        const div = document.createElement('div');
+        div.className = `feature-flag ${enabled ? 'enabled' : ''}`;
+        div.innerHTML = `
+          <span>${feature}</span>
+          <span class="badge ${enabled ? 'enabled' : 'disabled'}">${enabled ? 'ON' : 'OFF'}</span>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function updateDashboard() {
+      if (!gameState) return;
+
+      // Update status
+      document.getElementById('gameStateDisplay').textContent = gameState.gameState;
+      document.getElementById('currentRoundDisplay').textContent =
+        `${gameState.currentRound} / ${gameState.totalRounds}`;
+      document.getElementById('playerCountDisplay').textContent = gameState.players.length;
+      document.getElementById('teamCountDisplay').textContent = gameState.teams.length;
+
+      // Update button states
+      const startGameBtn = document.getElementById('startGameBtn');
+      const startRoundBtn = document.getElementById('startRoundBtn');
+
+      if (gameState.gameState === 'lobby') {
+        startGameBtn.disabled = false;
+        startRoundBtn.disabled = true;
+      } else if (gameState.gameState === 'leaderboard') {
+        startGameBtn.disabled = true;
+        startRoundBtn.disabled = false;
+      } else {
+        startGameBtn.disabled = true;
+        startRoundBtn.disabled = true;
+      }
+
+      // Update players list
+      updatePlayersList();
+
+      // Update teams list
+      updateTeamsList();
+
+      // Update leaderboard
+      updateLeaderboard();
+    }
+
+    function updatePlayersList() {
+      const container = document.getElementById('playerList');
+      if (gameState.players.length === 0) {
+        container.innerHTML = '<p style="opacity: 0.6;">No players connected</p>';
+        return;
+      }
+
+      container.innerHTML = '';
+      gameState.players
+        .sort((a, b) => b.score - a.score)
+        .forEach(player => {
+          const teamName = player.teamId ?
+            gameState.teams.find(t => t.id === player.teamId)?.name || 'Unknown' :
+            'No team';
+
+          const div = document.createElement('div');
+          div.className = `player-item ${player.isCPU ? 'cpu' : ''}`;
+          div.innerHTML = `
+            <div class="player-info">
+              <div class="player-name">
+                ${player.name}
+                ${player.isCPU ? '<span class="badge cpu">CPU</span>' : ''}
+              </div>
+              <div class="player-details">
+                ${player.teamId ? `<span class="badge team">${teamName}</span>` : '<span style="opacity: 0.6;">No team</span>'}
+              </div>
+            </div>
+            <div class="score">${player.score}</div>
+          `;
+          container.appendChild(div);
+        });
+    }
+
+    function updateTeamsList() {
+      const container = document.getElementById('teamList');
+      if (gameState.teams.length === 0) {
+        container.innerHTML = '<p style="opacity: 0.6;">No teams created</p>';
+        return;
+      }
+
+      container.innerHTML = '';
+      gameState.teams
+        .sort((a, b) => b.score - a.score)
+        .forEach(team => {
+          const memberNames = team.members
+            .map(mid => gameState.players.find(p => p.id === mid)?.name || 'Unknown')
+            .join(', ');
+
+          const div = document.createElement('div');
+          div.className = `team-item ${team.isCPU ? 'cpu' : ''}`;
+          div.innerHTML = `
+            <div class="player-info">
+              <div class="player-name">
+                ${team.name}
+                ${team.isCPU ? '<span class="badge cpu">CPU</span>' : ''}
+              </div>
+              <div class="player-details">
+                Members: ${memberNames}
+              </div>
+            </div>
+            <div class="score">${team.score}</div>
+          `;
+          container.appendChild(div);
+        });
+    }
+
+    function updateLeaderboard() {
+      const container = document.getElementById('leaderboard');
+
+      if (gameState.gameState === 'lobby') {
+        container.innerHTML = '<p style="opacity: 0.6;">Game not started</p>';
+        return;
+      }
+
+      container.innerHTML = '';
+
+      // Player leaderboard
+      const playerSection = document.createElement('div');
+      playerSection.innerHTML = '<h3 style="margin-bottom: 15px;">Player Rankings</h3>';
+
+      gameState.players
+        .sort((a, b) => b.score - a.score)
+        .forEach((player, index) => {
+          const div = document.createElement('div');
+          div.className = 'leaderboard-item';
+          div.innerHTML = `
+            <div class="rank">#${index + 1}</div>
+            <div class="player-info">
+              ${player.name}
+              ${player.isCPU ? '<span class="badge cpu">CPU</span>' : ''}
+            </div>
+            <div class="score">${player.score} pts</div>
+          `;
+          playerSection.appendChild(div);
+        });
+
+      container.appendChild(playerSection);
+
+      // Team leaderboard
+      if (config && config.features.teamVsTeam && gameState.teams.length > 0) {
+        const teamSection = document.createElement('div');
+        teamSection.innerHTML = '<h3 style="margin: 30px 0 15px 0;">Team Rankings</h3>';
+
+        gameState.teams
+          .sort((a, b) => b.score - a.score)
+          .forEach((team, index) => {
+            const div = document.createElement('div');
+            div.className = 'leaderboard-item';
+            div.innerHTML = `
+              <div class="rank">#${index + 1}</div>
+              <div class="player-info">
+                ${team.name}
+                ${team.isCPU ? '<span class="badge cpu">CPU</span>' : ''}
+                <div class="player-details">${team.members.length} members</div>
+              </div>
+              <div class="score">${team.score} pts</div>
+            `;
+            teamSection.appendChild(div);
+          });
+
+        container.appendChild(teamSection);
+      }
+    }
+
+    // Control functions
+    function updateTimer() {
+      const seconds = parseInt(document.getElementById('timerInput').value);
+      if (seconds >= 5 && seconds <= 120) {
+        socket.emit('admin:setTimer', { seconds });
+      } else {
+        alert('Timer must be between 5 and 120 seconds');
+      }
+    }
+
+    function startGame() {
+      if (confirm('Start the game? This will begin round 1.')) {
+        socket.emit('admin:startGame');
+      }
+    }
+
+    function startRound() {
+      socket.emit('admin:startRound');
+    }
+
+    function resetGame() {
+      if (confirm('Reset the game? This will clear all scores and return to lobby.')) {
+        socket.emit('admin:resetGame');
+      }
+    }
+  </script>
+</body>
+</html>
