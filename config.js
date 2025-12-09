@@ -10,7 +10,9 @@ module.exports = {
     roundsPerGame: 10,
     buttonCount: 3,
     pointsPerSecond: 1,
-    defaultTimerSeconds: 30
+    defaultTimerSeconds: 30,
+    maxTeams: 2,           // Maximum number of teams allowed
+    playersPerTeam: 4      // Players per team (CPUs fill remaining spots)
   },
   trashTalkPhrases: [
     "Nice try!",
@@ -24,8 +26,9 @@ module.exports = {
     "Game on!",
     "You'll get 'em next time!"
   ],
-  cpuTeams: [
-    { name: "CPU Crushers", players: ["BotAlpha", "BotBeta"] },
-    { name: "AI Avengers", players: ["RoboOne"] }
+  // CPU player names to use when filling teams
+  cpuPlayerNames: [
+    "Bot Alpha", "Bot Beta", "Bot Gamma", "Bot Delta",
+    "Bot Epsilon", "Bot Zeta", "Bot Eta", "Bot Theta"
   ]
 };

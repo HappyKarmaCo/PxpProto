@@ -54,6 +54,14 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('player:useBlitz', () => {
+    gameManager.useBlitz(socket.id);
+  });
+
+  socket.on('player:useBeastMode', () => {
+    gameManager.useBeastMode(socket.id);
+  });
+
   // Admin events
   socket.on('admin:join', () => {
     gameManager.addAdmin(socket);
